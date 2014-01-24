@@ -8,6 +8,7 @@ import org.apache.commons.codec.binary.Base64
 import org.kiji.schema._
 import scala.Some
 import org.apache.commons.lang.SerializationUtils
+import scala.collection.JavaConversions._
 
 /**
  * Something like KijiTap and KijiSchema in KijiExpress.
@@ -37,8 +38,8 @@ case class KijiConf(val kijiURI: KijiURI) {
     val builder: KijiDataRequestBuilder = KijiDataRequest.builder()
 
     builder
-        .newColumnsDef()
-        .addFamily("info")
+      .newColumnsDef()
+      .addFamily("info")
 
     val dataRequest: KijiDataRequest = builder.build()
 
@@ -48,6 +49,9 @@ case class KijiConf(val kijiURI: KijiURI) {
       Base64.encodeBase64String(SerializationUtils.serialize(dataRequest)))
 
     conf.setUserClassesTakesPrecedence(true);
+
+    // Uncomment this to print out the full configuration
+    //conf.foreach({ e => println(e.getKey + "=" + e.getValue) })
 
     conf
   }
