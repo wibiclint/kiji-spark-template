@@ -3,6 +3,10 @@ package org.kiji.spark
 import org.apache.spark.SparkContext
 import SparkContext._
 import org.rogach.scallop._
+//import org.kiji.mapreduce._
+//import org.kiji.mapreduce.framework.KijiTableInputFormat
+//import org.kiji.schema.{KijiRowData, EntityId}
+//import org.apache.hadoop.conf.Configuration
 
 /**
  * Main class for running a simple Spark job.
@@ -29,6 +33,18 @@ object App {
 
     // Create the SparkContext for this application.
     val sc = new SparkContext(hostName, "Word count!!!!!!!!")
+
+    // Create a Kiji RDD
+    /*
+    val casRdd = sc.newAPIHadoopRDD(
+      new Configuration(),
+      // InputFormat class
+      classOf[KijiTableInputFormat],
+      // Key class
+      classOf[EntityId],
+      // Value class
+      classOf[KijiRowData])
+      */
 
     val lines = sc.textFile(inputFile)
     val words = lines.flatMap(_.split(" "))
