@@ -15,6 +15,6 @@ This will print out a bunch of stuff.  Set that huge bunch of stuff to an enviro
 
 Now you can run the main class using the JAR file in `target`:
 
-    java -cp target/KijiSpark-0.1-SNAPSHOT.jar:$SPARKCP org.kiji.spark.App --input-file hdfs://localhost:8020/user/clint/short.txt --host local
+    java -cp target/KijiSpark-0.1-SNAPSHOT.jar:$SPARKCP org.kiji.spark.App --host local
 
 Woo hoo!

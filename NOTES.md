@@ -32,3 +32,6 @@ Eventually from all of these builders, we get a configured map-reduce job, ready
 116 of `MapReduceJobBuilder`, which contains the `build()` method).  We should be able to call the
 `getConfiguration` method on the `Job` we get from the `MapReduceJobBuilder` in our Spark code when
 we call `newAPIHadoopRDD`.
+
+We can also just look at `KijiTap` and `KijiScheme` in KijiExpress.  They do basically everything we
+need to do.
