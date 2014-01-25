@@ -6,6 +6,7 @@ import org.rogach.scallop._
 import org.kiji.mapreduce.framework.KijiTableInputFormat
 import org.kiji.schema.{KijiURI, KijiRowData, EntityId}
 import org.apache.hadoop.conf.Configuration
+import org.apache.spark.rdd.NewHadoopRDD
 
 /**
  * Main class for running a simple Spark job.
@@ -38,6 +39,7 @@ object App {
     val kijiConf: KijiConf = KijiConf(kijiURI)
 
     // Create a Kiji RDD
+    /*
     val kijiStuff = sc.newAPIHadoopRDD(
       kijiConf.createJobConf(),
       // InputFormat class
@@ -46,7 +48,18 @@ object App {
       classOf[EntityId],
       // Value class
       classOf[KijiRowData])
+      */
 
+    val kijiStuff = new NewHadoopRDD(
+      sc = sc,
+      // InputFormat class
+      inputFormatClass = classOf[KijiTableInputFormat],
+      // Key class
+      keyClass = classOf[EntityId],
+      // Value class
+      valueClass = classOf[KijiRowData],
+      conf = kijiConf.createJobConf(),
+      cloneRecords = false)
     val results = kijiStuff.take(2)
     results.foreach(println)
 
