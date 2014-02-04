@@ -3,10 +3,14 @@ package org.kiji.spark
 import org.apache.spark.SparkContext
 import SparkContext._
 import org.rogach.scallop._
-import org.kiji.mapreduce.framework.KijiTableInputFormat
+import org.kiji.mapreduce.framework.{KijiConfKeys, KijiTableInputFormat}
 import org.kiji.schema.{KijiURI, KijiRowData, EntityId}
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.rdd.NewHadoopRDD
+import org.apache.hadoop.mapreduce.lib.output.{TextOutputFormat, FileOutputFormat}
+import org.apache.hadoop.mapred.JobConf
+import org.kiji.mapreduce.impl.{DirectKijiTableWriterContext, HFileWriterContext}
+import org.kiji.mapreduce.KijiTableContext
 
 /**
  * Main class for running a simple Spark job.
@@ -62,6 +66,32 @@ object App {
       cloneRecords = false)
     val results = kijiStuff.take(2)
     results.foreach(println)
+
+    val kijiKeyValue = kijiStuff.map {
+      rowTup: (EntityId, KijiRowData)  => {
+        val rowData: KijiRowData = rowTup._2
+        val userIdMap = rowData.getValues("info", "name")
+        val eid = rowTup._1
+        (eid.getComponents().get(0), userIdMap.values().toArray().head)
+      }
+    }
+
+
+    // Write to a text file
+    kijiKeyValue.saveAsNewAPIHadoopFile(
+        path = "spark_output",
+        keyClass = classOf[String],
+        valueClass = classOf[String],
+        //outputFormatClass = classOf[FileOutputFormat[String, String]],
+        outputFormatClass = classOf[TextOutputFormat[String, String]],
+        conf = kijiConf.createOutputJobConf()
+      )
+
+    // Should pull out any settings from the classpath.
+    val wConf: JobConf = new JobConf(new Configuration())
+    wConf.setClass(KijiConfKeys.KIJI_TABLE_CONTEXT_CLASS, classOf[DirectKijiTableWriterContext], classOf[KijiTableContext])
+    wConf.setBoolean("mapred.map.tasks.speculative.execution", false)
+    wConf.set(KijiConfKeys.KIJI_OUTPUT_TABLE_URI, kijiURI.toString)
 
     /*
     val lines = sc.textFile(inputFile)

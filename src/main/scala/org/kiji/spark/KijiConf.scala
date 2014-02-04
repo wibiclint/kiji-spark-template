@@ -9,6 +9,8 @@ import org.kiji.schema._
 import scala.Some
 import org.apache.commons.lang.SerializationUtils
 import scala.collection.JavaConversions._
+import org.kiji.mapreduce.impl.HFileWriterContext
+import org.kiji.mapreduce.KijiTableContext
 
 /**
  * Something like KijiTap and KijiSchema in KijiExpress.
@@ -23,6 +25,8 @@ case class KijiConf(val kijiURI: KijiURI) {
     val configuration = new Configuration()
 
     val conf: JobConf = new JobConf(configuration)
+
+    // Input stuff
 
     // Set the input format.
     //conf.setInputFormat(classOf[KijiTableInputFormat])
@@ -50,19 +54,32 @@ case class KijiConf(val kijiURI: KijiURI) {
 
     conf.setUserClassesTakesPrecedence(true);
 
+    // Output stuff
+
     // Uncomment this to print out the full configuration
     //conf.foreach({ e => println(e.getKey + "=" + e.getValue) })
+    //conf.set(KijiConfKeys.KIJI_OUTPUT_TABLE_URI, kijiURI.toString)
 
+
+
+
+    // Also: Row filter, start EID, end EID
+
+    // For sink:
+    // Configure the job's output format.
+    //conf.setOutputFormat(classOf[NullOutputFormat[_, _]])
+
+    // Store the output table.
+    //conf.set(KijiConfKeys.KIJI_OUTPUT_TABLE_URI, tableUri)
     conf
   }
+  def createOutputJobConf(): JobConf = {
+    // Should pull out any settings from the classpath.
+    val configuration = new Configuration()
+    val conf: JobConf = new JobConf(configuration)
 
-  // Also: Row filter, start EID, end EID
-
-  // For sink:
-  // Configure the job's output format.
-  //conf.setOutputFormat(classOf[NullOutputFormat[_, _]])
-
-  // Store the output table.
-  //conf.set(KijiConfKeys.KIJI_OUTPUT_TABLE_URI, tableUri)
+    conf.setClass(KijiConfKeys.KIJI_TABLE_CONTEXT_CLASS, classOf[HFileWriterContext], classOf[KijiTableContext])
+    conf
+  }
 }
 
